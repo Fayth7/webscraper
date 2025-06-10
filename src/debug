@@ -1,0 +1,42 @@
+from bs4 import BeautifulSoup
+from selenium.webdriver.remote.webdriver import WebDriver
+
+
+def debug_page_structure(driver: WebDriver):
+    """Debug function to understand the page structure"""
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    print("DEBUGGING PAGE STRUCTURE")
+    print(f"Page title: {soup.title.text if soup.title else 'No title found'}")
+    print(f"Current URL: {driver.current_url}")
+
+    # Look for common product container patterns
+    possible_selectors = [
+        'div.product-list-item',
+        'div.product-item',
+        'div.product',
+        'div[class*="product"]',
+        'article.product',
+        'li.product',
+        '.product-card',
+        '.product-tile',
+        '[data-product]'
+    ]
+
+    for selector in possible_selectors:
+        elements = soup.select(selector)
+        if elements:
+            print(f"Found {len(elements)} elements with selector: {selector}")
+            if elements:
+                print(
+                    f"First element HTML (truncated): {str(elements[0])[:200]}...")
+
+    # Look for any divs with class containing "product"
+    product_divs = soup.find_all(
+        'div', class_=lambda x: x and 'product' in x.lower())
+    if product_divs:
+        print(f"\nFound {len(product_divs)} divs with 'product' in class name")
+        for i, div in enumerate(product_divs[:3]):
+            print(f"Product div {i+1} classes: {div.get('class')}")
+
+    print("END DEBUGGING\n")
